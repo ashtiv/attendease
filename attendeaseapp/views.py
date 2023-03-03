@@ -19,11 +19,11 @@ def register(request):
 
             messages.success(request, f'Account created for {username}!')
 
-            # Authenticate the user and log them in.
-            user = authenticate(request, username=user.username,
-                                password=form.cleaned_data['password1'])
-            login(request, user)
-            return redirect('home')
+            # Redirect to the appropriate home page based on the user's selection
+            if is_teacher:
+                return redirect('teacherhome')
+            else:
+                return redirect('studenthome')
     else:
         form = CustomUserCreationForm()
     return render(request, 'register.html', {'form': form})
@@ -38,8 +38,12 @@ def login_view(request):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
-                messages.success(request, f'Welcome back, {username}!')
-                return redirect('home')
+                if checkTeacher.objects.filter(user=user, is_teacher=True).exists():
+                    # Redirect to teacher home
+                    return redirect('teacherhome')
+                else:
+                    # Redirect to student home
+                    return redirect('studenthome')
             else:
                 messages.warning(request, 'Invalid username or password.')
     else:
@@ -47,10 +51,18 @@ def login_view(request):
     return render(request, 'login.html', {'form': form})
 
 
-def home(request):
+def teacherhome(request):
     if request.user.is_authenticated:
         username = request.user.username
-        return render(request, 'home.html', {'username': username})
+        return render(request, 'teacherhome.html', {'username': username})
+    else:
+        return redirect('login')
+
+
+def studenthome(request):
+    if request.user.is_authenticated:
+        username = request.user.username
+        return render(request, 'studenthome.html', {'username': username})
     else:
         return redirect('login')
 
