@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from attendeaseapp.forms import CustomUserCreationForm, CustomAuthenticationForm
+from .models import checkTeacher
 
 
 def register(request):
@@ -10,7 +11,14 @@ def register(request):
         if form.is_valid():
             user = form.save()
             username = form.cleaned_data.get('username')
+            is_teacher = request.POST.get('is_teacher', False)
+
+            # Create a new checkTeacher instance for the user
+            check_teacher = checkTeacher.objects.create(
+                user=user, is_teacher=bool(is_teacher))
+
             messages.success(request, f'Account created for {username}!')
+
             # Authenticate the user and log them in.
             user = authenticate(request, username=user.username,
                                 password=form.cleaned_data['password1'])

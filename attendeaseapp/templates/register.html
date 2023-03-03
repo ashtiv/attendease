@@ -4,7 +4,23 @@
 <h2>Register</h2>
 <form method="POST">
     {% csrf_token %}
-    {{ form.as_p }}
+    <div>
+        {{ form.username.label_tag }}
+        {{ form.username }}
+    </div>
+    <div>
+        {{ form.password1.label_tag }}
+        {{ form.password1 }}
+    </div>
+    <div>
+        {{ form.password2.label_tag }}
+        {{ form.password2 }}
+    </div>
+    <div>
+        <label>
+            <input type="checkbox" name="is_teacher" value="1"> Are you a teacher?
+        </label>
+    </div>
     <button type="submit">Register</button>
 </form>
 {% endblock %}
