@@ -56,10 +56,15 @@ def login_view(request):
     return render(request, 'login.html', {'form': form})
 
 
+@login_required
 def teacherhome(request):
     if request.user.is_authenticated:
         username = request.user.username
-        return render(request, 'teacherhome.html', {'username': username})
+        teacher_classes = Classes.objects.filter(teacher=request.user)
+        all_classes = Classes.objects.all()
+        print(teacher_classes, " tttttttttt")
+        print(all_classes, "sdjsdjdkj")
+        return render(request, 'teacherhome.html', {'username': username, 'classes': teacher_classes, "all_classes": all_classes})
     else:
         return redirect('login')
 
