@@ -5,6 +5,10 @@ from attendeaseapp.forms import CustomUserCreationForm, CustomAuthenticationForm
 from .models import checkTeacher
 
 
+def index(request):
+    return render(request, 'index.html')
+
+
 def register(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
