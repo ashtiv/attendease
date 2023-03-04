@@ -2,7 +2,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from attendeaseapp.forms import CustomUserCreationForm, CustomAuthenticationForm
-from .models import checkTeacher
+from .models import checkTeacher, Classes
+from django.contrib.auth.decorators import login_required
 
 
 def index(request):
@@ -75,3 +76,30 @@ def logout_view(request):
     logout(request)
     messages.success(request, 'You have been logged out.')
     return redirect('login')
+
+
+@login_required
+def create_class(request):
+    if request.method == 'POST':
+        name = request.POST.get('class-name')
+        description = request.POST.get('class-description')
+        password = request.POST.get('class-password')
+        teacher = request.user
+
+        # Check if class name already exists
+        if Classes.objects.filter(name=name).exists():
+            messages.error(request, 'Class name already exists!')
+            return redirect('teacherhome')
+
+        # Create new class
+        new_class = Classes.objects.create(
+            name=name,
+            description=description,
+            password=password,
+            teacher=teacher,
+        )
+
+        messages.success(request, 'Class created successfully!')
+        return redirect('teacherhome')
+
+    return render(request, 'teacherhome.html')
