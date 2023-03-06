@@ -16,6 +16,7 @@ def register(request):
         if form.is_valid():
             user = form.save()
             username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
             is_teacher = request.POST.get('is_teacher', False)
 
             # Create a new checkTeacher instance for the user
@@ -23,6 +24,9 @@ def register(request):
                 user=user, is_teacher=bool(is_teacher))
 
             messages.success(request, f'Account created for {username}!')
+
+            # Automatically log in the user
+            login(request, user)
 
             # Redirect to the appropriate home page based on the user's selection
             if is_teacher:
@@ -62,8 +66,6 @@ def teacherhome(request):
         username = request.user.username
         teacher_classes = Classes.objects.filter(teacher=request.user)
         all_classes = Classes.objects.all()
-        print(teacher_classes, " tttttttttt")
-        print(all_classes, "sdjsdjdkj")
         return render(request, 'teacherhome.html', {'username': username, 'classes': teacher_classes, "all_classes": all_classes})
     else:
         return redirect('login')
