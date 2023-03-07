@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from attendeaseapp.forms import CustomUserCreationForm, CustomAuthenticationForm
-from .models import checkTeacher, Classes
+from .models import checkTeacher, Classes, Enrollment
 from django.contrib.auth.decorators import login_required
 
 
@@ -63,10 +63,28 @@ def login_view(request):
 @login_required
 def teacherhome(request):
     if request.user.is_authenticated:
+        if request.method == 'POST':
+            name = request.POST.get('class-name')
+            description = request.POST.get('class-description')
+            password = request.POST.get('class-password')
+
+            # Create the class instance
+            new_class = Classes.objects.create(
+                name=name, description=description, password=password)
+
+            # Associate the current user with the new class
+            Enrollment.objects.create(user=request.user, classes=new_class)
         username = request.user.username
-        teacher_classes = Classes.objects.filter(teacher=request.user)
+
+        # Get classes associated with current user
+        teacher_classes = Classes.objects.filter(
+            enrollment__user=request.user).values_list('name', 'description')
+        print(teacher_classes, " ttttt111111111")
+
+        # Get all classes
         all_classes = Classes.objects.all()
-        return render(request, 'teacherhome.html', {'username': username, 'classes': teacher_classes, "all_classes": all_classes})
+
+        return render(request, 'teacherhome.html', {'username': username, 'classes': teacher_classes, 'all_classes': all_classes})
     else:
         return redirect('login')
 
@@ -83,30 +101,3 @@ def logout_view(request):
     logout(request)
     messages.success(request, 'You have been logged out.')
     return redirect('login')
-
-
-@login_required
-def create_class(request):
-    if request.method == 'POST':
-        name = request.POST.get('class-name')
-        description = request.POST.get('class-description')
-        password = request.POST.get('class-password')
-        teacher = request.user
-
-        # Check if class name already exists
-        if Classes.objects.filter(name=name).exists():
-            messages.error(request, 'Class name already exists!')
-            return redirect('teacherhome')
-
-        # Create new class
-        new_class = Classes.objects.create(
-            name=name,
-            description=description,
-            password=password,
-            teacher=teacher,
-        )
-
-        messages.success(request, 'Class created successfully!')
-        return redirect('teacherhome')
-
-    return render(request, 'teacherhome.html')

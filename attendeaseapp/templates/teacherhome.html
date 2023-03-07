@@ -15,7 +15,7 @@
                     <h4 class="mb-0">Create a New Class:</h4>
                 </div>
                 <div class="card-body">
-                    <form method="POST" action="{% url 'create_class' %}" onsubmit="return checkForm()">
+                    <form method="POST" onsubmit="return checkForm()">
                         {% csrf_token %}
                         <div class="mb-3">
                             <label for="class-name" class="form-label">Class Name:</label>
@@ -47,9 +47,9 @@
                 <div class="card-body">
                     {% if classes %}
                     <ul class="list-group">
-                        {% for class_obj in classes %}
+                        {% for name,des in classes %}
                         <li class="list-group-item">
-                            <a href="#">{{ class_obj.name }}</a> - {{ class_obj.description }}
+                            <a href="#">{{ name}}</a> - {{ des }}
                         </li>
                         {% endfor %}
                     </ul>
@@ -68,7 +68,6 @@
                         {% for class_obj in all_classes %}
                         <li class="list-group-item">
                             <a href="#">{{ class_obj.name }}</a> - {{ class_obj.description }}
-                            ({{class_obj.teacher.username}})
                         </li>
                         {% endfor %}
                     </ul>
