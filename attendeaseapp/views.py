@@ -4,6 +4,7 @@ from django.contrib import messages
 from attendeaseapp.forms import CustomUserCreationForm, CustomAuthenticationForm
 from .models import checkTeacher, Classes, Enrollment
 from django.contrib.auth.decorators import login_required
+from django.db import IntegrityError
 
 
 def index(request):
@@ -68,18 +69,27 @@ def teacherhome(request):
             description = request.POST.get('class-description')
             password = request.POST.get('class-password')
 
-            # Create the class instance
-            new_class = Classes.objects.create(
-                name=name, description=description, password=password)
+            # Create the class instance and catch any IntegrityError
+            try:
+                new_class = Classes.objects.create(
+                    name=name, description=description, password=password)
 
-            # Associate the current user with the new class
-            Enrollment.objects.create(user=request.user, classes=new_class)
+                # Associate the current user with the new class
+                Enrollment.objects.create(user=request.user, classes=new_class)
+
+                # Success message
+                messages.success(
+                    request, f"The class '{name}' has been created.")
+            except IntegrityError:
+                # Error message
+                messages.error(
+                    request, f"A class with the name '{name}' already exists.")
+
         username = request.user.username
 
         # Get classes associated with current user
         teacher_classes = Classes.objects.filter(
             enrollment__user=request.user).values_list('name', 'description')
-        print(teacher_classes, " ttttt111111111")
 
         # Get all classes
         all_classes = Classes.objects.all()
