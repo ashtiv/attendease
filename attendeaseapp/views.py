@@ -5,6 +5,8 @@ from attendeaseapp.forms import CustomUserCreationForm, CustomAuthenticationForm
 from .models import checkTeacher, Classes, Enrollment
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
+from django.http import JsonResponse
+from django.db.models import Q
 
 
 def index(request):
@@ -101,10 +103,23 @@ def teacherhome(request):
 
 def studenthome(request):
     if request.user.is_authenticated:
-        username = request.user.username
-        return render(request, 'studenthome.html', {'username': username})
+        user = request.user
+        user_classes = Enrollment.objects.filter(
+            user=user).values_list('classes__name', flat=True)
+        all_classes = Classes.objects.all()
+        return render(request, 'studenthome.html', {'user_classes': user_classes, 'all_classes': all_classes})
     else:
         return redirect('login')
+
+
+def search_classes(request):
+    query = request.GET.get('query', '')
+    if query:
+        classes = Classes.objects.filter(Q(name__icontains=query))
+    else:
+        classes = Classes.objects.none()
+    data = [{'name': c.name, 'description': c.description} for c in classes]
+    return JsonResponse(data, safe=False)
 
 
 def logout_view(request):
