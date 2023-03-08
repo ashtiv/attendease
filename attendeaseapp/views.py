@@ -7,6 +7,8 @@ from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.http import JsonResponse
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
+from django.urls import reverse
 
 
 def index(request):
@@ -91,7 +93,7 @@ def teacherhome(request):
 
         # Get classes associated with current user
         teacher_classes = Classes.objects.filter(
-            enrollment__user=request.user).values_list('name', 'description')
+            enrollment__user=request.user).values_list('id', 'name', 'description')
 
         # Get all classes
         all_classes = Classes.objects.all()
@@ -101,28 +103,60 @@ def teacherhome(request):
         return redirect('login')
 
 
+@login_required
 def studenthome(request):
     if request.user.is_authenticated:
         user = request.user
-        user_classes = Enrollment.objects.filter(
-            user=user).values_list('classes__name', flat=True)
+        user_classes = Classes.objects.filter(
+            enrollment__user=request.user).values_list('name', 'id', 'description')
         all_classes = Classes.objects.all()
         return render(request, 'studenthome.html', {'user_classes': user_classes, 'all_classes': all_classes})
     else:
         return redirect('login')
 
 
+@login_required
 def search_classes(request):
     query = request.GET.get('query', '')
     if query:
         classes = Classes.objects.filter(Q(name__icontains=query))
     else:
         classes = Classes.objects.none()
-    data = [{'name': c.name, 'description': c.description} for c in classes]
+    data = [{'name': c.name, 'description': c.description, 'id': c.id}
+            for c in classes]
     return JsonResponse(data, safe=False)
+
+
+@login_required
+def class_detail(request, class_id):
+    class_obj = get_object_or_404(Classes, id=class_id)
+    enrolled = Enrollment.objects.filter(
+        user=request.user, classes=class_obj).exists()
+    if request.method == 'POST':
+        password = request.POST.get('password')
+        if password == class_obj.password:
+            if not enrolled:
+                Enrollment.objects.create(user=request.user, classes=class_obj)
+                messages.success(
+                    request, 'You have successfully joined the class.')
+                # Replace 'success_page' with the name of your success page URL pattern
+                success_url = reverse('success_page', args=[class_id])
+                return redirect(success_url)
+            else:
+                messages.warning(
+                    request, 'You are already enrolled in this class.')
+        else:
+            messages.error(request, 'Incorrect password. Please try again.')
+    context = {'class_obj': class_obj, 'enrolled': enrolled}
+    return render(request, 'class_detail.html', context)
+
+
+def success_page(request, class_id):
+    class_obj = get_object_or_404(Classes, id=class_id)
+    context = {'class_obj': class_obj}
+    return render(request, 'class_joined.html', context)
 
 
 def logout_view(request):
     logout(request)
-    messages.success(request, 'You have been logged out.')
     return redirect('login')

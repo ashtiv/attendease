@@ -75,9 +75,9 @@
                 <div class="card-body">
                     {% if classes %}
                     <ul class="list-group">
-                        {% for name,des in classes %}
+                        {% for class_id, name, des in classes %}
                         <li class="list-group-item">
-                            <a href="#">{{ name}}</a> - {{ des }}
+                            <a href="{% url 'class_detail' class_id %}">{{ name }}</a> - {{ des }}
                         </li>
                         {% endfor %}
                     </ul>
@@ -95,7 +95,8 @@
                     <ul class="list-group">
                         {% for class_obj in all_classes %}
                         <li class="list-group-item">
-                            <a href="#">{{ class_obj.name }}</a> - {{ class_obj.description }}
+                            <a href="{% url 'class_detail' class_obj.id %}">{{ class_obj.name }}</a> -
+                            {{class_obj.description }}
                         </li>
                         {% endfor %}
                     </ul>
@@ -126,7 +127,9 @@
                 // Display the filtered classes
                 for (const classObj of classes) {
                     const listItem = document.createElement('div');
-                    listItem.innerHTML = `<a href="#">${classObj.name}</a> - ${classObj.description}`;
+                    const cid = classObj.id;
+                    const ss = "/class/" + String(cid) + "/";
+                    listItem.innerHTML = `<a href=${ss}>${classObj.name}</a> - ${classObj.description}`;
                     classSearchResults.appendChild(listItem);
                 }
             });
