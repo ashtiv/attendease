@@ -159,4 +159,4 @@ def success_page(request, class_id):
 
 def logout_view(request):
     logout(request)
-    return redirect('login')
+    return redirect('home')
