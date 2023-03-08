@@ -8,7 +8,6 @@
             <hr class="my-5">
         </div>
         <div class="col-md-6 mb-5">
-
             <div class="card mb-3">
 
                 <div class="card-header bg-primary text-white">
@@ -46,7 +45,19 @@
                     </form>
                 </div>
             </div>
+            <div class="card mb-3">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Join a New Class:</h4>
+                </div>
+                <div class="card-body">
+                    <input type="text" id="class-search-input" class="form-control" placeholder="Search for a class...">
+                </div>
+                <div class="card-body" id="class-search-results">
+                    <!-- The list of classes will be displayed here -->
+                </div>
+            </div>
         </div>
+
 
         <div class="col-md-6 mb-5">
             <div class="card mb-3">
@@ -89,6 +100,29 @@
     </div>
 </div>
 <script>
+    // Get the input element and search results div
+    const classSearchInput = document.getElementById('class-search-input');
+    const classSearchResults = document.getElementById('class-search-results');
+    // Add an event listener to the input element
+    classSearchInput.addEventListener('input', () => {
+        // Get the search query from the input value
+        const query = classSearchInput.value.trim();
+
+        // Send an AJAX request to the server with the search query
+        fetch(`/search_classes/?query=${query}`)
+            .then(response => response.json())
+            .then(classes => {
+                // Clear the search results div
+                classSearchResults.innerHTML = '';
+
+                // Display the filtered classes
+                for (const classObj of classes) {
+                    const listItem = document.createElement('div');
+                    listItem.innerHTML = `<a href="#">${classObj.name}</a> - ${classObj.description}`;
+                    classSearchResults.appendChild(listItem);
+                }
+            });
+    });
     function checkForm() {
         var password = document.getElementById("class-password").value;
         if (password == "") {
