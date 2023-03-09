@@ -140,8 +140,8 @@ def class_detail(request, class_id):
                 messages.success(
                     request, 'You have successfully joined the class.')
                 # Replace 'success_page' with the name of your success page URL pattern
-                success_url = reverse('success_page', args=[class_id])
-                return redirect(success_url)
+                # success_url = reverse('class_detail', args=[class_id])
+                # return redirect(success_url)
             else:
                 messages.warning(
                     request, 'You are already enrolled in this class.')
@@ -149,12 +149,6 @@ def class_detail(request, class_id):
             messages.error(request, 'Incorrect password. Please try again.')
     context = {'class_obj': class_obj, 'enrolled': enrolled}
     return render(request, 'class_detail.html', context)
-
-
-def success_page(request, class_id):
-    class_obj = get_object_or_404(Classes, id=class_id)
-    context = {'class_obj': class_obj}
-    return render(request, 'class_joined.html', context)
 
 
 def logout_view(request):
