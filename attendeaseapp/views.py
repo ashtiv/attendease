@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from attendeaseapp.forms import CustomUserCreationForm, CustomAuthenticationForm
-from .models import checkTeacher, Classes, Enrollment
+from .models import checkTeacher, Classes, Enrollment, Attendance
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.http import JsonResponse
@@ -147,7 +147,15 @@ def class_detail(request, class_id):
                     request, 'You are already enrolled in this class.')
         else:
             messages.error(request, 'Incorrect password. Please try again.')
-    context = {'class_obj': class_obj, 'enrolled': enrolled}
+    enrollment = Enrollment.objects.filter(
+        user=request.user, classes=class_obj).first()
+    attendance_records = Attendance.objects.filter(
+        user=request.user, classes=class_obj).first()
+    dates_present = attendance_records.dates_present if attendance_records else []
+    for attendance in dates_present:
+        print(attendance)
+    context = {'class_obj': class_obj, 'enrolled': enrolled,
+               'attendance_records': dates_present}
     return render(request, 'class_detail.html', context)
 
 

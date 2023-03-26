@@ -17,9 +17,19 @@ class Classes(models.Model):
         return self.name
 
 
+class Attendance(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    dates_present = models.JSONField(default=list)
+    classes = models.ForeignKey(Classes, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.user.username}"
+
+
 class Enrollment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     classes = models.ForeignKey(Classes, on_delete=models.CASCADE)
+    attendances = models.ManyToManyField(Attendance, blank=True)
 
     def __str__(self):
         return f"{self.user.username} - {self.classes.name}"
