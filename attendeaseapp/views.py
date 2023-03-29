@@ -9,6 +9,12 @@ from django.http import JsonResponse
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
+import qrcode
+from io import BytesIO
+from django.http import HttpResponse
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+import base64
 
 
 def index(request):
@@ -103,16 +109,35 @@ def teacherhome(request):
         return redirect('login')
 
 
-@login_required
+@login_required(login_url='login')
 def studenthome(request):
-    if request.user.is_authenticated:
-        user = request.user
-        user_classes = Classes.objects.filter(
-            enrollment__user=request.user).values_list('name', 'id', 'description')
-        all_classes = Classes.objects.all()
-        return render(request, 'studenthome.html', {'user_classes': user_classes, 'all_classes': all_classes})
-    else:
-        return redirect('login')
+    user = request.user
+    user_id = user.id
+    qr_code = generate_qr_code(user_id)
+    user_classes = Classes.objects.filter(
+        enrollment__user=user).values_list('name', 'id', 'description')
+    all_classes = Classes.objects.all()
+    context = {'user_classes': user_classes,
+               'all_classes': all_classes, 'qr_code': qr_code}
+    return render(request, 'studenthome.html', context)
+
+
+def generate_qr_code(user_id):
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=10,
+        border=4,
+    )
+    value = f"student{user_id}student"
+    qr.add_data(value)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+    buffer = BytesIO()
+    img.save(buffer, format='PNG')
+    buffer = buffer.getvalue()
+    encoded_img = base64.b64encode(buffer).decode('utf-8')
+    return encoded_img
 
 
 @login_required
