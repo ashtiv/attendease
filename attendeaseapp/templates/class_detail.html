@@ -76,9 +76,17 @@
                                 const decodedresult = content;
                                 alert(decodedresult);
                             });
-                            scanner.start(cameras[0]);
+                            if (cameras.length > 1) {
+                                scanner.mirror = false;
+                                scanner.start(cameras[1]);
+                            }
+                            else {
+                                scanner.mirror = true;
+                                scanner.start(cameras[0]);
+                            }
                             scanning = true;
                             document.getElementById('scanBtn').innerText = 'Stop';
+
                         } else {
                             console.error('No cameras found.');
                         }
