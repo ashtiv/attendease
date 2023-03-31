@@ -179,8 +179,10 @@ def class_detail(request, class_id):
     dates_present = attendance_records.dates_present if attendance_records else []
     for attendance in dates_present:
         print(attendance)
+    is_teacher = checkTeacher.objects.filter(
+        user=request.user, is_teacher=True).exists()
     context = {'class_obj': class_obj, 'enrolled': enrolled,
-               'attendance_records': dates_present}
+               'attendance_records': dates_present, 'is_teacher': is_teacher}
     return render(request, 'class_detail.html', context)
 
 

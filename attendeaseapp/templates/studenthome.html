@@ -12,7 +12,10 @@
     </div>
     <div class="row">
         {% if qr_code %}
-        <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code">
+        <div class="col-md-12 mb-5 text-center">
+            <h4 class="mb-3">Scan QR Code for Attendance</h4>
+            <img src="data:image/png;base64,{{ qr_code }}" alt="QR Code" class="img-fluid">
+        </div>
         {% endif %}
         <div class="col-12 mb-5">
             <h1 class="display-4 text-center mb-4">Your Dashboard</h1>

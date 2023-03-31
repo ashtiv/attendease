@@ -35,21 +35,89 @@
                 </div>
             </div>
         </div>
-        <h2>Attendance</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for record in attendance_records %}
-                <tr>
-                    <td>{{ record }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        {% if is_teacher %}
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">QR Scanner</h4>
+                </div>
+                <div class="card-body text-center">
+                    <video id="scanner" style="width:100%;"></video>
+                    <p id="output" class="mt-3"></p>
+                    <button id="scanBtn" class="btn btn-lg btn-primary mt-3" onclick="toggleScanner()">Scan QR</button>
+                </div>
+            </div>
+        </div>
+        <script src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
+        <script>
+            let scanner = null;
+            let scanning = false;
+            function toggleScanner() {
+                if (scanning) {
+                    scanner.stop();
+                    scanning = false;
+                    document.getElementById('scanBtn').innerText = 'Scan QR';
+                } else {
+                    Instascan.Camera.getCameras().then(function (cameras) {
+                        if (cameras.length > 0) {
+                            scanner = new Instascan.Scanner({
+                                continuous: true,
+                                video: document.getElementById('scanner'),
+                                mirror: true,
+                                captureImage: false,
+                                backgroundScan: true,
+                                refractoryPeriod: 5000,
+                                scanPeriod: 1
+                            });
+                            scanner.addListener('scan', function (content) {
+                                scanner.stop();
+                                scanning = false;
+                                document.getElementById('scanBtn').innerText = 'Scan QR';
+                                const decodedresult = content;
+                                alert(decodedresult);
+                            });
+                            scanner.start(cameras[0]);
+                            scanning = true;
+                            document.getElementById('scanBtn').innerText = 'Stop';
+                        } else {
+                            console.error('No cameras found.');
+                        }
+                    }).catch(function (e) {
+                        console.error(e);
+                    });
+                }
+            }
+        </script>
+        {% endif %}
+        <div class="col-md-8">
+            <h2>Attendance</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Roll No</th>
+                        {% for date in class_obj.get_all_dates %}
+                        <th>{{ date|date:'d-m-Y' }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in class_obj.students.all %}
+                    <tr>
+                        <td>{{ student.roll_no }}</td>
+                        {% for date in class_obj.get_all_dates %}
+                        <td>
+                            {% if attendance_dict.date_attendance_dict.date %}
+                            <span class="badge badge-success">Present</span>
+                            {% else %}
+                            <span class="badge badge-danger">Absent</span>
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 {% endblock %}
