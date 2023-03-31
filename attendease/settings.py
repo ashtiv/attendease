@@ -25,7 +25,7 @@ SECRET_KEY = 'mg8^0)=toel(+)n6=ik1__5mdyt$t&n4b_p3e!gj4e-+uga!ce'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['attendease.onrender.com']
 
 
 # Application definition
