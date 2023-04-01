@@ -25,7 +25,7 @@ SECRET_KEY = 'mg8^0)=toel(+)n6=ik1__5mdyt$t&n4b_p3e!gj4e-+uga!ce'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['attendease.onrender.com', '127.0.0.1']
+ALLOWED_HOSTS = ['attendease.onrender.com', '127.0.0.1', '192.168.137.1']
 
 
 # Application definition
@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'attendeaseapp',
+    'sslserver'
 ]
 
 MIDDLEWARE = [

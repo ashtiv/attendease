@@ -88,10 +88,10 @@
                             document.getElementById('scanBtn').innerText = 'Stop';
 
                         } else {
-                            console.error('No cameras found.');
+                            alert('No cameras found.');
                         }
                     }).catch(function (e) {
-                        console.error(e);
+                        alert(e);
                     });
                 }
             }
