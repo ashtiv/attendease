@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
 from django.contrib import messages
 from attendeaseapp.forms import CustomUserCreationForm, CustomAuthenticationForm
 from .models import checkTeacher, Classes, Enrollment, Attendance
@@ -184,6 +185,21 @@ def class_detail(request, class_id):
     context = {'class_obj': class_obj, 'enrolled': enrolled,
                'attendance_records': dates_present, 'is_teacher': is_teacher}
     return render(request, 'class_detail.html', context)
+
+
+def attendance(request, class_id):
+    content = request.POST.get('content', None)
+    if content:
+        # remove "student" from both ends of the string
+        id_str = content.replace("student", "")
+        student_id = int(id_str)  # convert the remaining string to an integer
+        user = User.objects.get(pk=student_id)
+        name = user.username
+        message = f"Attendance of {name} has been taken"
+        return JsonResponse({'message': message})
+    else:
+        # Return error message if content is not provided
+        return JsonResponse({'error': 'Content not found'}, status=400)
 
 
 def logout_view(request):

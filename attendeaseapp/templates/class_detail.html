@@ -23,7 +23,7 @@
                     {% endif %}
                     {% endfor %}
                     {% else %}
-                    <form method="POST" action="{% url 'class_detail' class_obj.id %}">
+                    <form method="POST" action="{% url 'class_detail' class_obj.id %}" id="class-attendance-form">
                         {% csrf_token %}
                         <div class="form-group">
                             <label for="password" class="text-dark">Class Password</label>
@@ -48,6 +48,7 @@
                 </div>
             </div>
         </div>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
         <script>
             let scanner = null;
@@ -74,7 +75,21 @@
                                 scanning = false;
                                 document.getElementById('scanBtn').innerText = 'Scan QR';
                                 const decodedresult = content;
-                                alert(decodedresult);
+                                $.ajax({
+                                    type: "POST",
+                                    url: "{% url 'attendance' class_obj.id %}",
+                                    data: {
+                                        'csrfmiddlewaretoken': '{{ csrf_token }}',
+                                        'content': content
+                                    },
+                                    success: function (data) {
+                                        alert(data.message);
+                                    },
+                                    error: function (xhr, errmsg, err) {
+                                        alert(xhr.status + ": " + xhr.responseText);
+                                    }
+                                });
+                                // alert(decodedresult);
                             });
                             if (cameras.length > 1) {
                                 scanner.mirror = false;
