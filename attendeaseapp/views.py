@@ -12,7 +12,9 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 import qrcode
 from io import BytesIO
+from datetime import date
 from django.http import HttpResponse
+from django.http import Http404
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 import base64
@@ -193,9 +195,28 @@ def attendance(request, class_id):
         # remove "student" from both ends of the string
         id_str = content.replace("student", "")
         student_id = int(id_str)  # convert the remaining string to an integer
-        user = User.objects.get(pk=student_id)
+
+        # Check if the student is enrolled in the class
+        try:
+            enrollment = get_object_or_404(
+                Enrollment, user_id=student_id, classes_id=class_id)
+        except Http404:
+            return JsonResponse({'error': 'Student is not enrolled in this class'}, status=404)
+
+        # If the student is enrolled, take attendance
+        user = enrollment.user
         name = user.username
-        message = f"Attendance of {name} has been taken"
+        attendance, created = Attendance.objects.get_or_create(
+            user=user, classes_id=class_id)
+
+        today_str = date.today().strftime('%Y-%m-%d')
+        if today_str in attendance.dates_present:
+            message = f"Attendance for {name} has already been taken on {today_str}"
+        else:
+            attendance.dates_present.append(today_str)
+            attendance.save()
+            message = f"Attendance of {name} has been taken on {today_str}"
+
         return JsonResponse({'message': message})
     else:
         # Return error message if content is not provided
