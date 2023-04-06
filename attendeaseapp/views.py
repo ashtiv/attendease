@@ -192,9 +192,9 @@ def class_detail(request, class_id):
 def attendance(request, class_id):
     content = request.POST.get('content', None)
     if content:
-        # remove "student" from both ends of the string
+        # Remove "student" from both ends of the string
         id_str = content.replace("student", "")
-        student_id = int(id_str)  # convert the remaining string to an integer
+        student_id = int(id_str)  # Convert the remaining string to an integer
 
         # Check if the student is enrolled in the class
         try:
@@ -209,7 +209,22 @@ def attendance(request, class_id):
         attendance, created = Attendance.objects.get_or_create(
             user=user, classes_id=class_id)
 
+        # Add today's date to every teacher's attendance
+        teachers = User.objects.filter(
+            enrollment__classes_id=class_id,
+            checkteacher__is_teacher=True
+        )
         today_str = date.today().strftime('%Y-%m-%d')
+        for teacher in teachers:
+            teacher_attendance, created = Attendance.objects.get_or_create(
+                user=teacher,
+                classes_id=class_id
+            )
+            if today_str not in teacher_attendance.dates_present:
+                teacher_attendance.dates_present.append(today_str)
+                teacher_attendance.save()
+
+        # Take attendance for the student
         if today_str in attendance.dates_present:
             message = f"Attendance for {name} has already been taken on {today_str}"
         else:
