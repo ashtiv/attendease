@@ -177,15 +177,54 @@ def class_detail(request, class_id):
             messages.error(request, 'Incorrect password. Please try again.')
     enrollment = Enrollment.objects.filter(
         user=request.user, classes=class_obj).first()
-    attendance_records = Attendance.objects.filter(
-        user=request.user, classes=class_obj).first()
-    dates_present = attendance_records.dates_present if attendance_records else []
-    for attendance in dates_present:
-        print(attendance)
     is_teacher = checkTeacher.objects.filter(
         user=request.user, is_teacher=True).exists()
-    context = {'class_obj': class_obj, 'enrolled': enrolled,
-               'attendance_records': dates_present, 'is_teacher': is_teacher}
+
+    if is_teacher:
+        attendance_qs = Attendance.objects.filter(
+            user=request.user, classes__id=class_id)
+        if attendance_qs.exists():
+            attendance = attendance_qs.first()
+            dates_present = attendance.dates_present
+        else:
+            dates_present = []
+
+        enrolled_students = User.objects.filter(
+            Q(enrollment__classes=class_obj) & ~Q(
+                checkteacher__is_teacher=True)
+        )
+
+        attendance_records = []
+        for student in enrolled_students:
+            attendance_record = Attendance.objects.filter(
+                user=student, classes=class_obj).first()
+            dates_present2 = attendance_record.dates_present if attendance_record else []
+            attendance_records.append(
+                {
+                    'student': student,
+                    'dates_present': dates_present2,
+                }
+            )
+
+        context = {
+            'class_obj': class_obj,
+            'enrolled': enrolled,
+            'attendance_records': attendance_records,
+            'teacher_attendance': dates_present,
+            'is_teacher': is_teacher
+        }
+    else:
+        attendance_records = Attendance.objects.filter(
+            user=request.user, classes=class_obj).first()
+        dates_present = attendance_records.dates_present if attendance_records else []
+
+        context = {
+            'class_obj': class_obj,
+            'enrolled': enrolled,
+            'attendance_records': dates_present,
+            'is_teacher': is_teacher
+        }
+
     return render(request, 'class_detail.html', context)
 
 

@@ -111,36 +111,32 @@
                 }
             }
         </script>
-        {% endif %}
         <div class="col-md-8">
             <h2>Attendance</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Roll No</th>
-                        {% for date in class_obj.get_all_dates %}
-                        <th>{{ date|date:'d-m-Y' }}</th>
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            {% for date in teacher_attendance %}
+                            <th>{{ date }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in attendance_records %}
+                        <tr>
+                            <td>{{ record.student.username }}</td>
+                            {% for date in teacher_attendance %}
+                            <td>{% if date in record.dates_present %}Present{% else %}-{% endif %}</td>
+                            {% endfor %}
+                        </tr>
                         {% endfor %}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for student in class_obj.students.all %}
-                    <tr>
-                        <td>{{ student.roll_no }}</td>
-                        {% for date in class_obj.get_all_dates %}
-                        <td>
-                            {% if attendance_dict.date_attendance_dict.date %}
-                            <span class="badge badge-success">Present</span>
-                            {% else %}
-                            <span class="badge badge-danger">Absent</span>
-                            {% endif %}
-                        </td>
-                        {% endfor %}
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
         </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
