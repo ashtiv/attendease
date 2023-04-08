@@ -188,7 +188,7 @@ def class_detail(request, class_id):
             dates_present = attendance.dates_present
         else:
             dates_present = []
-
+        total_classes = len(dates_present)
         enrolled_students = User.objects.filter(
             Q(enrollment__classes=class_obj) & ~Q(
                 checkteacher__is_teacher=True)
@@ -199,10 +199,15 @@ def class_detail(request, class_id):
             attendance_record = Attendance.objects.filter(
                 user=student, classes=class_obj).first()
             dates_present2 = attendance_record.dates_present if attendance_record else []
+            num_classes_present = len(set(dates_present2) & set(dates_present))
+            percent_attendance = "{:.2f}%".format(
+                (num_classes_present / total_classes) * 100
+            ) if total_classes else "0%"
             attendance_records.append(
                 {
                     'student': student,
                     'dates_present': dates_present2,
+                    'percent_attendance': percent_attendance,
                 }
             )
 

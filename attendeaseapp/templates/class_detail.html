@@ -121,6 +121,7 @@
                             {% for date in teacher_attendance %}
                             <th>{{ date }}</th>
                             {% endfor %}
+                            <th>Percentage</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -130,6 +131,7 @@
                             {% for date in teacher_attendance %}
                             <td>{% if date in record.dates_present %}Present{% else %}-{% endif %}</td>
                             {% endfor %}
+                            <td>{{ record.percent_attendance }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
