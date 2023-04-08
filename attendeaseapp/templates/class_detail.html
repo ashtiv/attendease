@@ -1,6 +1,26 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<style>
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .fixed-col {
+        position: sticky;
+        left: 0;
+        background-color: #fff;
+        opacity: 1 !important;
+        z-index: 1;
+        /* add a higher z-index value to make sure it's on top of other elements */
+    }
+
+    .fixed-col,
+    .fixed-col+* {
+        width: 200px;
+        /* set the width of the first column */
+    }
+</style>
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-8">
@@ -111,13 +131,13 @@
                 }
             }
         </script>
-        <div class="col-md-8">
+        <div class="col-md-8 my-3">
             <h2>Attendance</h2>
             <div class="table-responsive">
                 <table class="table table-bordered table-striped">
                     <thead>
                         <tr>
-                            <th>Student</th>
+                            <th class="fixed-col">Student</th>
                             {% for date in teacher_attendance %}
                             <th>{{ date }}</th>
                             {% endfor %}
@@ -127,7 +147,7 @@
                     <tbody>
                         {% for record in attendance_records %}
                         <tr>
-                            <td>{{ record.student.username }}</td>
+                            <td class="fixed-col">{{ record.student.username }}</td>
                             {% for date in teacher_attendance %}
                             <td>{% if date in record.dates_present %}Present{% else %}-{% endif %}</td>
                             {% endfor %}
