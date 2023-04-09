@@ -158,6 +158,34 @@
                 </table>
             </div>
         </div>
+        {% else %}
+        <div class="col-md-8 my-3">
+            <h2>Attendance</h2>
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th class="fixed-col">Student</th>
+                            {% for date in teacher_attendance %}
+                            <th>{{ date }}</th>
+                            {% endfor %}
+                            <th>Percentage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in attendance_records %}
+                        <tr>
+                            <td class="fixed-col">{{ record.student.username }}</td>
+                            {% for date in teacher_attendance %}
+                            <td>{% if date in record.dates_present %}Present{% else %}-{% endif %}</td>
+                            {% endfor %}
+                            <td>{{ record.percent_attendance }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
         {% endif %}
     </div>
 </div>

@@ -219,15 +219,42 @@ def class_detail(request, class_id):
             'is_teacher': is_teacher
         }
     else:
+        enrolled_teachers = User.objects.filter(
+            enrollment__classes=class_obj, checkteacher__is_teacher=True
+        )
+        teacher = enrolled_teachers.first() if enrolled_teachers.exists() else None
+        if teacher:
+            attendance_qs = Attendance.objects.filter(
+                user=teacher, classes__id=class_id)
+            if attendance_qs.exists():
+                attendance = attendance_qs.first()
+                tdates_present = attendance.dates_present
+            else:
+                tdates_present = []
+            total_classes = len(tdates_present)
+        else:
+            tdates_present = []
         attendance_records = Attendance.objects.filter(
             user=request.user, classes=class_obj).first()
         dates_present = attendance_records.dates_present if attendance_records else []
-
+        num_classes_present = len(set(dates_present) & set(tdates_present))
+        percent_attendance = "{:.2f}%".format(
+            (num_classes_present / total_classes) * 100
+        ) if total_classes else "0%"
+        attendance_records = []
+        attendance_records.append(
+            {
+                'student': request.user,
+                'dates_present': dates_present,
+                'percent_attendance': percent_attendance,
+            }
+        )
         context = {
             'class_obj': class_obj,
             'enrolled': enrolled,
-            'attendance_records': dates_present,
-            'is_teacher': is_teacher
+            'attendance_records': attendance_records,
+            'is_teacher': is_teacher,
+            'teacher_attendance': tdates_present,
         }
 
     return render(request, 'class_detail.html', context)
