@@ -2,14 +2,7 @@
 
 {% block content %}
 <div class="container mt-5">
-    <div class="d-flex justify-content-end mt-3">
-        <div>
-            <form action="{% url 'logout' %}" method="post">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-primary">Logout</button>
-            </form>
-        </div>
-    </div>
+    {% include 'navbar.html' %}
     <div class="row">
         {% if qr_code %}
         <div class="col-md-12 mb-5 text-center">

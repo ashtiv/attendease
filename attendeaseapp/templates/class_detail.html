@@ -22,7 +22,8 @@
     }
 </style>
 <div class="container mt-5">
-    <div class="row justify-content-center">
+    {% include 'navbar.html' %}
+    <div class="row justify-content-center mt-5">
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header bg-primary text-white">
@@ -56,6 +57,7 @@
             </div>
         </div>
         {% if is_teacher %}
+        {% if enrolled %}
         <div class="col-md-4">
             <div class="card">
                 <div class="card-header bg-success text-white">
@@ -68,6 +70,7 @@
                 </div>
             </div>
         </div>
+        {% endif %}
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
         <script>
@@ -131,6 +134,7 @@
                 }
             }
         </script>
+        {% if enrolled %}
         <div class="col-md-8 my-3">
             <h2>Attendance</h2>
             <div class="table-responsive">
@@ -158,6 +162,7 @@
                 </table>
             </div>
         </div>
+        {% endif %}
         {% else %}
         <div class="col-md-8 my-3">
             <h2>Attendance</h2>
