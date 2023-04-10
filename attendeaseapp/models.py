@@ -12,6 +12,7 @@ class Classes(models.Model):
     description = models.TextField()
     password = models.CharField(max_length=100)
     users = models.ManyToManyField(User, through='Enrollment')
+    dates_present = models.JSONField(default=list)
 
     def __str__(self):
         return self.name

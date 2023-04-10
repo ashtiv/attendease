@@ -252,6 +252,8 @@ def class_detail(request, class_id):
             total_classes = len(tdates_present)
         else:
             tdates_present = []
+        class_obj.dates_present = tdates_present
+        class_obj.save()
         attendance_records = Attendance.objects.filter(
             user=request.user, classes=class_obj).first()
         dates_present = attendance_records.dates_present if attendance_records else []
