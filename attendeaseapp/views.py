@@ -167,9 +167,27 @@ def class_detail(request, class_id):
                 Enrollment.objects.create(user=request.user, classes=class_obj)
                 messages.success(
                     request, 'You have successfully joined the class.')
-                # Replace 'success_page' with the name of your success page URL pattern
-                # success_url = reverse('class_detail', args=[class_id])
-                # return redirect(success_url)
+                is_teacher = checkTeacher.objects.filter(
+                    user=request.user, is_teacher=True).exists()
+                if is_teacher:
+                    teacher_attendance = Attendance.objects.create(
+                        user=request.user, classes=class_obj)
+                    enrolled_teachers = User.objects.filter(
+                        enrollment__classes=class_obj, checkteacher__is_teacher=True
+                    )
+                    teacher = enrolled_teachers.first() if enrolled_teachers.exists() else None
+                    tdates_present = []
+                    if teacher:
+                        attendance_qs = Attendance.objects.filter(
+                            user=teacher, classes__id=class_id)
+                        if attendance_qs.exists():
+                            attendance = attendance_qs.first()
+                            tdates_present = attendance.dates_present
+                    teacher_attendance.dates_present = tdates_present
+                    teacher_attendance.save()
+            # Replace 'success_page' with the name of your success page URL pattern
+            # success_url = reverse('class_detail', args=[class_id])
+            # return redirect(success_url)
             else:
                 messages.warning(
                     request, 'You are already enrolled in this class.')
