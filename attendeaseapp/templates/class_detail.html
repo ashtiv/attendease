@@ -153,7 +153,18 @@
                         <tr>
                             <td class="fixed-col">{{ record.student.username }}</td>
                             {% for date in teacher_attendance %}
-                            <td>{% if date in record.dates_present %}Present{% else %}-{% endif %}</td>
+                            <td>
+                                {% if date in record.dates_present %}
+                                <p class="text-center">Present</p>
+                                <button class="remove-attendance bg-primary text-white btn" data-date="{{ date }}"
+                                    data-student="{{ record.student.id }}" data-class="{{ class_obj.id }}">Remove
+                                    Presence</button>
+                                {% else %}
+                                <button class="add-attendance bg-primary text-white btn" data-date="{{ date }}"
+                                    data-student="{{ record.student.id }}" data-class="{{ class_obj.id }}">Mark
+                                    Present</button>
+                                {% endif %}
+                            </td>
                             {% endfor %}
                             <td>{{ record.percent_attendance }}</td>
                         </tr>
@@ -165,5 +176,30 @@
         {% endif %}
         {% endif %}
     </div>
+    <script>
+        $(document).ready(function () {
+            $('.add-attendance').click(function () {
+                var date = $(this).data('date');
+                var student_id = $(this).data('student');
+                var class_id = $(this).data('class');
+
+                $.post('/add_attendance/', { 'date': date, 'student_id': student_id, 'class_id': class_id }, function (data) {
+                    // handle success/failure
+                    location.reload(); // refresh the page
+                });
+            });
+            $('.remove-attendance').click(function () {
+                var date = $(this).data('date');
+                var student_id = $(this).data('student');
+                var class_id = $(this).data('class');
+
+                $.post('/remove_attendance/', { 'date': date, 'student_id': student_id, 'class_id': class_id }, function (data) {
+                    // handle success/failure
+                    location.reload(); // refresh the page
+                });
+            });
+        });
+    </script>
+
 </div>
 {% endblock %}

@@ -4,6 +4,8 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from attendeaseapp.forms import CustomUserCreationForm, CustomAuthenticationForm
 from .models import checkTeacher, Classes, Enrollment, Attendance
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.http import JsonResponse
@@ -261,6 +263,7 @@ def attendance(request, class_id):
         today_str = date.today().strftime('%Y-%m-%d')
         if today_str not in classes.dates_present:
             classes.dates_present.append(today_str)
+            classes.dates_present.sort()
             classes.save()
 
         # Take attendance for the student
@@ -268,6 +271,7 @@ def attendance(request, class_id):
             message = f"Attendance for {name} has already been taken on {today_str}"
         else:
             attendance.dates_present.append(today_str)
+            attendance.dates_present.sort()
             attendance.save()
             message = f"Attendance of {name} has been taken on {today_str}"
 
@@ -275,6 +279,42 @@ def attendance(request, class_id):
     else:
         # Return error message if content is not provided
         return JsonResponse({'error': 'Content not found'}, status=400)
+
+
+@csrf_exempt
+def add_attendance(request):
+    if request.method == 'POST':
+        date = request.POST.get('date')
+        student_id = request.POST.get('student_id')
+        class_id = request.POST.get('class_id')
+        print(date, student_id, class_id)
+        attendance, created = Attendance.objects.get_or_create(
+            user_id=student_id, classes_id=class_id)
+        attendance.dates_present.append(date)
+        attendance.dates_present.sort()
+        attendance.save()
+
+        return JsonResponse({'status': 'success'})
+    else:
+        return JsonResponse({'status': 'error'})
+
+
+@csrf_exempt
+def remove_attendance(request):
+    if request.method == 'POST':
+        date = request.POST.get('date')
+        student_id = request.POST.get('student_id')
+        class_id = request.POST.get('class_id')
+        print(date, student_id, class_id)
+        attendance, created = Attendance.objects.get_or_create(
+            user_id=student_id, classes_id=class_id)
+        attendance.dates_present.remove(date)
+        attendance.dates_present.sort()
+        attendance.save()
+
+        return JsonResponse({'status': 'success'})
+    else:
+        return JsonResponse({'status': 'error'})
 
 
 def logout_view(request):
