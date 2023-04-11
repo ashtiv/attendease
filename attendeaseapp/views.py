@@ -167,57 +167,28 @@ def class_detail(request, class_id):
                 Enrollment.objects.create(user=request.user, classes=class_obj)
                 messages.success(
                     request, 'You have successfully joined the class.')
-                is_teacher = checkTeacher.objects.filter(
-                    user=request.user, is_teacher=True).exists()
-                if is_teacher:
-                    teacher_attendance = Attendance.objects.create(
-                        user=request.user, classes=class_obj)
-                    enrolled_teachers = User.objects.filter(
-                        enrollment__classes=class_obj, checkteacher__is_teacher=True
-                    )
-                    teacher = enrolled_teachers.first() if enrolled_teachers.exists() else None
-                    tdates_present = []
-                    if teacher:
-                        attendance_qs = Attendance.objects.filter(
-                            user=teacher, classes__id=class_id)
-                        if attendance_qs.exists():
-                            attendance = attendance_qs.first()
-                            tdates_present = attendance.dates_present
-                    teacher_attendance.dates_present = tdates_present
-                    teacher_attendance.save()
-            # Replace 'success_page' with the name of your success page URL pattern
-            # success_url = reverse('class_detail', args=[class_id])
-            # return redirect(success_url)
             else:
                 messages.warning(
                     request, 'You are already enrolled in this class.')
         else:
             messages.error(request, 'Incorrect password. Please try again.')
-    enrollment = Enrollment.objects.filter(
-        user=request.user, classes=class_obj).first()
     is_teacher = checkTeacher.objects.filter(
         user=request.user, is_teacher=True).exists()
 
     if is_teacher:
-        attendance_qs = Attendance.objects.filter(
-            user=request.user, classes__id=class_id)
-        if attendance_qs.exists():
-            attendance = attendance_qs.first()
-            dates_present = attendance.dates_present
-        else:
-            dates_present = []
-        total_classes = len(dates_present)
+        tdates_present = class_obj.dates_present
+        total_classes = len(tdates_present)
         enrolled_students = User.objects.filter(
             Q(enrollment__classes=class_obj) & ~Q(
                 checkteacher__is_teacher=True)
         )
-
         attendance_records = []
         for student in enrolled_students:
             attendance_record = Attendance.objects.filter(
                 user=student, classes=class_obj).first()
             dates_present2 = attendance_record.dates_present if attendance_record else []
-            num_classes_present = len(set(dates_present2) & set(dates_present))
+            num_classes_present = len(
+                set(dates_present2) & set(tdates_present))
             percent_attendance = "{:.2f}%".format(
                 (num_classes_present / total_classes) * 100
             ) if total_classes else "0%"
@@ -233,27 +204,12 @@ def class_detail(request, class_id):
             'class_obj': class_obj,
             'enrolled': enrolled,
             'attendance_records': attendance_records,
-            'teacher_attendance': dates_present,
+            'teacher_attendance': tdates_present,
             'is_teacher': is_teacher
         }
     else:
-        enrolled_teachers = User.objects.filter(
-            enrollment__classes=class_obj, checkteacher__is_teacher=True
-        )
-        teacher = enrolled_teachers.first() if enrolled_teachers.exists() else None
-        if teacher:
-            attendance_qs = Attendance.objects.filter(
-                user=teacher, classes__id=class_id)
-            if attendance_qs.exists():
-                attendance = attendance_qs.first()
-                tdates_present = attendance.dates_present
-            else:
-                tdates_present = []
-            total_classes = len(tdates_present)
-        else:
-            tdates_present = []
-        class_obj.dates_present = tdates_present
-        class_obj.save()
+        tdates_present = class_obj.dates_present
+        total_classes = len(tdates_present)
         attendance_records = Attendance.objects.filter(
             user=request.user, classes=class_obj).first()
         dates_present = attendance_records.dates_present if attendance_records else []
@@ -301,19 +257,11 @@ def attendance(request, class_id):
             user=user, classes_id=class_id)
 
         # Add today's date to every teacher's attendance
-        teachers = User.objects.filter(
-            enrollment__classes_id=class_id,
-            checkteacher__is_teacher=True
-        )
+        classes = get_object_or_404(Classes, id=class_id)
         today_str = date.today().strftime('%Y-%m-%d')
-        for teacher in teachers:
-            teacher_attendance, created = Attendance.objects.get_or_create(
-                user=teacher,
-                classes_id=class_id
-            )
-            if today_str not in teacher_attendance.dates_present:
-                teacher_attendance.dates_present.append(today_str)
-                teacher_attendance.save()
+        if today_str not in classes.dates_present:
+            classes.dates_present.append(today_str)
+            classes.save()
 
         # Take attendance for the student
         if today_str in attendance.dates_present:
