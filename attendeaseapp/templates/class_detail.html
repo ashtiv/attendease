@@ -20,6 +20,37 @@
         width: 200px;
         /* set the width of the first column */
     }
+
+    form {
+        margin: 20px 0;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 10px;
+    }
+
+    input[type="date"] {
+        width: 100%;
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        font-size: 16px;
+    }
+
+    button[type="submit"] {
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        border: none;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    button[type="submit"]:hover {
+        background-color: #3e8e41;
+    }
 </style>
 <div class="container mt-5">
     {% include 'navbar.html' %}
@@ -134,6 +165,8 @@
                 }
             }
         </script>
+        {% endif %}
+
         {% if enrolled %}
         <div class="col-md-8 my-3">
             <h2>Attendance</h2>
@@ -156,13 +189,18 @@
                             <td>
                                 {% if date in record.dates_present %}
                                 <p class="text-center">Present</p>
+                                {% if is_teacher %}
                                 <button class="remove-attendance bg-primary text-white btn" data-date="{{ date }}"
                                     data-student="{{ record.student.id }}" data-class="{{ class_obj.id }}">Remove
                                     Presence</button>
+                                {% endif %}
+
                                 {% else %}
+                                {% if is_teacher %}
                                 <button class="add-attendance bg-primary text-white btn" data-date="{{ date }}"
                                     data-student="{{ record.student.id }}" data-class="{{ class_obj.id }}">Mark
                                     Present</button>
+                                {% endif %}
                                 {% endif %}
                             </td>
                             {% endfor %}
@@ -174,7 +212,19 @@
             </div>
         </div>
         {% endif %}
+        {% if is_teacher %}
+        <form method="POST" class="form-inline">
+            {% csrf_token %}
+            <div class="form-group mx-sm-3 mb-2">
+                <label for="date" class="sr-only">Date:</label>
+                <input type="date" name="date" id="date" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary mb-2">Submit</button>
+        </form>
         {% endif %}
+
+
+
     </div>
     <script>
         $(document).ready(function () {

@@ -317,6 +317,11 @@ def remove_attendance(request):
         return JsonResponse({'status': 'error'})
 
 
+def add_date(request):
+    date = request.POST.get('date')
+    print(date)
+
+
 def logout_view(request):
     logout(request)
     return redirect('home')
