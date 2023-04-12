@@ -11,13 +11,19 @@
                 <div class="card-body">
                     <form method="POST">
                         {% csrf_token %}
-                        <div class="mb-3">
-                            <label for="{{ form.username.id_for_label }}" class="form-label">Username:</label>
-                            {{ form.username }}
+                        <div class="row mb-3">
+                            <label for="{{ form.username.id_for_label }}"
+                                class="col-sm-4 col-form-label">Username:</label>
+                            <div class="col-sm-8">
+                                {{ form.username }}
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="{{ form.password.id_for_label }}" class="form-label">Password:</label>
-                            {{ form.password }}
+                        <div class="row mb-3">
+                            <label for="{{ form.password.id_for_label }}"
+                                class="col-sm-4 col-form-label">Password:</label>
+                            <div class="col-sm-8">
+                                {{ form.password }}
+                            </div>
                         </div>
                         <div class="d-grid gap-2 mb-3">
                             <button type="submit" class="btn btn-lg btn-primary">Log in</button>
@@ -29,3 +35,34 @@
     </div>
 </div>
 {% endblock %}
+<style>
+    /* Styles for smaller screens */
+    @media (max-width: 576px) {
+        .card {
+            margin: 0;
+            box-shadow: none;
+        }
+
+        .card-header,
+        .card-body {
+            padding: 1rem;
+        }
+
+        .col-sm-4 {
+            width: 30%;
+            margin-right: 2%;
+            text-align: right;
+        }
+
+        .col-sm-8 {
+            width: 68%;
+        }
+    }
+
+    /* Styles for larger screens */
+    @media (min-width: 768px) {
+        .card {
+            margin-top: 2rem;
+        }
+    }
+</style>
