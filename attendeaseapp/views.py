@@ -308,9 +308,10 @@ def remove_attendance(request):
         print(date, student_id, class_id)
         attendance, created = Attendance.objects.get_or_create(
             user_id=student_id, classes_id=class_id)
-        attendance.dates_present.remove(date)
-        attendance.dates_present.sort()
-        attendance.save()
+        if date in attendance.dates_present:
+            attendance.dates_present.remove(date)
+            attendance.dates_present.sort()
+            attendance.save()
 
         return JsonResponse({'status': 'success'})
     else:
@@ -322,9 +323,33 @@ def add_date(request):
         date = request.POST.get('date')
         class_id = request.POST.get('class_id')
         classes = get_object_or_404(Classes, id=class_id)
-        classes.dates_present.append(date)
-        classes.dates_present.sort()
-        classes.save()
+        if date not in classes.dates_present:
+            classes.dates_present.append(date)
+            classes.dates_present.sort()
+            classes.save()
+        return JsonResponse({'status': 'success'})
+    else:
+        return JsonResponse({'status': 'error'})
+
+
+@csrf_exempt
+def delete_date(request):
+    if request.method == 'POST':
+        date = request.POST.get('date')
+        class_id = request.POST.get('class_id')
+        classes = get_object_or_404(Classes, id=class_id)
+        if date in classes.dates_present:
+            classes.dates_present.remove(date)
+            classes.dates_present.sort()
+            classes.save()
+        enrollments = Enrollment.objects.filter(classes_id=class_id)
+        for enrollment in enrollments:
+            attendance = Attendance.objects.filter(
+                classes_id=class_id, user=enrollment.user).first()
+            if date in attendance.dates_present:
+                attendance.dates_present.remove(date)
+                attendance.dates_present.sort()
+                attendance.save()
         return JsonResponse({'status': 'success'})
     else:
         return JsonResponse({'status': 'error'})

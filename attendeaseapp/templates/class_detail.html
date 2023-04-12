@@ -176,7 +176,12 @@
                         <tr>
                             <th class="fixed-col">Student</th>
                             {% for date in teacher_attendance %}
-                            <th>{{ date }}</th>
+                            <th>{{ date }}
+                                {% if is_teacher %}
+                                <button class="delete-date bg-danger text-white btn" data-date="{{ date }}"
+                                    data-class="{{ class_obj.id }}">Delete Date</button>
+                                {% endif %}
+                            </th>
                             {% endfor %}
                             <th>Percentage</th>
                         </tr>
@@ -194,7 +199,6 @@
                                     data-student="{{ record.student.id }}" data-class="{{ class_obj.id }}">Remove
                                     Presence</button>
                                 {% endif %}
-
                                 {% else %}
                                 {% if is_teacher %}
                                 <button class="add-attendance bg-primary text-white btn" data-date="{{ date }}"
@@ -210,9 +214,10 @@
                     </tbody>
                 </table>
             </div>
+
         </div>
         {% endif %}
-        {% if is_teacher %}
+        {% if is_teacher and enrolled %}
         <div class="row justify-content-center">
             <form method="POST" class="form-inline" id="my-form" style="width: 200px;">
                 {% csrf_token %}
@@ -267,7 +272,15 @@
                     location.reload();
                 });
             });
-
+            $('.delete-date').click(function () {
+                const date = $(this).data('date');
+                const class_id = $(this).data('class');
+                console.log(date, class_id)
+                $.post('/delete_date/', { 'date': date, 'class_id': class_id }, function (data) {
+                    // handle response from server, e.g. reload attendance table
+                    location.reload();
+                });
+            });
         });
     </script>
 

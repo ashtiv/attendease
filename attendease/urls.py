@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path
-from attendeaseapp.views import register, login_view, logout_view, teacherhome, studenthome, index, search_classes, class_detail, attendance, add_attendance, remove_attendance, add_date
+from attendeaseapp.views import register, login_view, logout_view, teacherhome, studenthome, index, search_classes, class_detail, attendance, add_attendance, remove_attendance, add_date, delete_date
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -16,4 +16,5 @@ urlpatterns = [
     path('add_attendance/', add_attendance, name='add_attendance'),
     path('remove_attendance/', remove_attendance, name='remove_attendance'),
     path('add_date/', add_date, name='add_date'),
+    path('delete_date/', delete_date, name='delete_date'),
 ]
