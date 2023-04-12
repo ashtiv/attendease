@@ -174,7 +174,7 @@
                 <table class="table table-bordered table-striped">
                     <thead>
                         <tr>
-                            <th class="fixed-col">Student</th>
+                            <th class="fixed-col" style="width: 150px;">Student</th>
                             {% for date in teacher_attendance %}
                             <th>{{ date }}
                                 {% if is_teacher %}
@@ -189,9 +189,9 @@
                     <tbody>
                         {% for record in attendance_records %}
                         <tr>
-                            <td class="fixed-col">{{ record.student.username }}</td>
+                            <td class="fixed-col" style="width: 150px;">{{ record.student.username }}</td>
                             {% for date in teacher_attendance %}
-                            <td>
+                            <td style="width: 150px;">
                                 {% if date in record.dates_present %}
                                 <p class="text-center">Present</p>
                                 {% if is_teacher %}
@@ -208,7 +208,7 @@
                                 {% endif %}
                             </td>
                             {% endfor %}
-                            <td>{{ record.percent_attendance }}</td>
+                            <td style="width: 150px;">{{ record.percent_attendance }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -230,11 +230,6 @@
             </form>
         </div>
         {% endif %}
-
-
-
-
-
     </div>
     <script>
         var cid = {{ class_obj.id }}
@@ -283,6 +278,5 @@
             });
         });
     </script>
-
 </div>
 {% endblock %}
