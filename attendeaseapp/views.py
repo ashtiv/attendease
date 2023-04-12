@@ -318,8 +318,16 @@ def remove_attendance(request):
 
 
 def add_date(request):
-    date = request.POST.get('date')
-    print(date)
+    if request.method == 'POST':
+        date = request.POST.get('date')
+        class_id = request.POST.get('class_id')
+        classes = get_object_or_404(Classes, id=class_id)
+        classes.dates_present.append(date)
+        classes.dates_present.sort()
+        classes.save()
+        return JsonResponse({'status': 'success'})
+    else:
+        return JsonResponse({'status': 'error'})
 
 
 def logout_view(request):

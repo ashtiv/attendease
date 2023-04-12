@@ -213,20 +213,26 @@
         </div>
         {% endif %}
         {% if is_teacher %}
-        <form method="POST" class="form-inline">
-            {% csrf_token %}
-            <div class="form-group mx-sm-3 mb-2">
-                <label for="date" class="sr-only">Date:</label>
-                <input type="date" name="date" id="date" class="form-control" required>
-            </div>
-            <button type="submit" class="btn btn-primary mb-2">Submit</button>
-        </form>
+        <div class="row justify-content-center">
+            <form method="POST" class="form-inline" id="my-form" style="width: 200px;">
+                {% csrf_token %}
+                <div class="form-group mx-sm-3 mb-2">
+                    <label for="date" class="sr-only">Date:</label>
+                    <input type="date" name="date" id="date" class="form-control" required>
+                    <button type="submit" class="btn btn-primary my-2">Submit</button>
+                </div>
+
+            </form>
+        </div>
         {% endif %}
+
+
 
 
 
     </div>
     <script>
+        var cid = {{ class_obj.id }}
         $(document).ready(function () {
             $('.add-attendance').click(function () {
                 var date = $(this).data('date');
@@ -248,6 +254,20 @@
                     location.reload(); // refresh the page
                 });
             });
+            $('#my-form').submit(function (event) {
+                event.preventDefault();
+                var formData = $(this).serializeArray();
+                var dateValue = $('#date').val();
+
+                var classIdValue = cid
+                formData.push({ name: 'date', value: dateValue });
+                formData.push({ name: 'class_id', value: classIdValue });
+                $.post('/add_date/', formData, function (response) {
+                    // Handle response
+                    location.reload();
+                });
+            });
+
         });
     </script>
 
