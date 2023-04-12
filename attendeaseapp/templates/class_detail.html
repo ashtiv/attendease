@@ -51,6 +51,22 @@
     button[type="submit"]:hover {
         background-color: #3e8e41;
     }
+
+    .table-bordered td:first-child {
+        background-color: #fff;
+        opacity: 1;
+        position: sticky;
+        left: 0;
+        z-index: 1;
+    }
+
+    .table-bordered th:first-child {
+        background-color: #fff;
+        opacity: 1;
+        position: sticky;
+        left: 0;
+        z-index: 1;
+    }
 </style>
 <div class="container mt-5">
     {% include 'navbar.html' %}
